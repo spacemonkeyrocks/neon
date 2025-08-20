@@ -111,14 +111,33 @@ fi
 if [ "$RELEASE_EXISTS" = false ]; then
     # Create zip
     echo "📦 Creating distribution zip..."
-    cd neon && zip -r ../neon.zip neon/ && cd ..
+    if [ ! -d "neon" ]; then
+        echo "❌ Error: neon directory not found!"
+        exit 1
+    fi
+    
+    cd neon
+    if ! zip -r ../neon.zip . ; then
+        echo "❌ Error: Failed to create zip file!"
+        exit 1
+    fi
+    cd ..
+    
+    if [ ! -f "neon.zip" ]; then
+        echo "❌ Error: neon.zip was not created!"
+        exit 1
+    fi
     
     # Create GitHub release
     echo "🎉 Creating GitHub release..."
-    gh release create "$VERSION" neon.zip \
+    if ! gh release create "$VERSION" neon.zip \
         --title "Neon $VERSION" \
         --generate-notes \
-        --latest
+        --latest ; then
+        echo "❌ Error: Failed to create GitHub release!"
+        rm -f neon.zip
+        exit 1
+    fi
     
     # Cleanup
     rm neon.zip
