@@ -271,8 +271,33 @@ class NeonFormatter:
         for group in self.parser._action_groups:
             # Skip default groups and empty groups
             if group.title in ['positional arguments', 'optional arguments']:
-                continue
-            
+                actions = [action for action in group._group_actions 
+                        if action.help != argparse.SUPPRESS]
+                if actions:
+                    # Check if the action is a subparser action to provide specific hint
+                    has_subparser = any(isinstance(action, argparse._SubParsersAction) 
+                                    for action in actions)
+                    
+                    error_msg = (
+                        f"Default argparse group '{group.title}' is not supported in Neon. "
+                        f"Please create a custom argument group using parser.add_argument_group() "
+                        f"and add your arguments to that group instead."
+                    )
+                    
+                    if has_subparser:
+                        error_msg += (
+                            f"\\n\\nHINT: If you're using subparsers, add a 'title' parameter:\\n"
+                            f"  subparsers = parser.add_subparsers(dest='command', title='Commands', help='...')"
+                        )
+                    else:
+                        error_msg += (
+                            f"\\n\\nHINT: Instead of adding arguments directly to the parser, do:\\n"
+                            f"  group = parser.add_argument_group('Your Group Name')\\n"
+                            f"  group.add_argument(...)"
+                        )
+                    
+                    raise ValueError(error_msg)            
+
             # Filter out suppressed actions
             actions = [action for action in group._group_actions 
                       if action.help != argparse.SUPPRESS]
@@ -397,7 +422,7 @@ class NeonFormatter:
             if action.metavar:
                 return f"[argparse.metavar]{action.metavar}[/argparse.metavar]"
             elif action.dest != argparse.SUPPRESS:
-                return f"[argparse.metavar]{action.dest.upper()}[/argparse.metavar]"
+                return f"[argparse.args]{action.dest.upper()}[/argparse.args]"
             return ""
         
         # Optional argument

@@ -31,6 +31,9 @@ class NeonConfig:
     theme: Union[str, Dict, Theme] = "default"         # Theme name, dict, or Rich Theme object
     custom_patterns: Optional[Dict[str, str]] = None   # Custom regex patterns for highlighting
     
+    # Error formatting
+    error_prefix: str = "[error]Error[/error]:"        # Configurable error prefix template
+
     # Content sections
     header: Optional[str] = None                       # Header text
     examples: Optional[Union[str, List[str]]] = None   # Examples section content

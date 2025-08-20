@@ -25,7 +25,7 @@ class NeonThemeManager:
         "argparse.text": "grey74",
         "argparse.prog": "grey42",
         "argparse.syntax": "white italic bold",
-        "error": "red",
+        "error": "red bold",
         "warning": "dark_orange",
         "info": "blue",
         "success": "green"
@@ -159,23 +159,16 @@ class NeonThemeManager:
             
             theme_dict = dict(config['theme'])
             
-            # Validate that we have at least some required styles
-            required_styles = ['argparse.args', 'argparse.groups', 'argparse.help']
-            missing_styles = [style for style in required_styles if style not in theme_dict]
-            
-            if missing_styles:
-                # Merge with default to ensure all styles are defined
-                merged = cls.DEFAULT_THEME.copy()
-                merged.update(theme_dict)
-                return merged
-            
-            return theme_dict
+            # Always merge with default theme to ensure all styles are defined
+            merged = cls.DEFAULT_THEME.copy()
+            merged.update(theme_dict)
+            return merged
             
         except configparser.Error as e:
             raise NeonError(f"Invalid INI file format in {file_path}: {e}") from e
         except Exception as e:
-            raise NeonError(f"Error reading theme file {file_path}: {e}") from e
-    
+            raise NeonError(f"Error reading theme file {file_path}: {e}") from e    
+
     @classmethod
     def save_theme(cls, theme: Theme, file_path: Union[str, Path]) -> None:
         """

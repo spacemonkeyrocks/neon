@@ -1,7 +1,7 @@
 import argparse
 import re
 
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Optional, Set
 from rich.highlighter import RegexHighlighter
 from rich.text import Text
 
@@ -18,9 +18,10 @@ class NeonHighlighter(RegexHighlighter):
         self._custom_patterns: Dict[str, str] = custom_patterns or {}
 
         # To ensure we do not start initializing while the argparser is not fully configured,
-        # we use lazy initialization for options and compiled regex and initialize them
+        # we use lazy initialization for options, positionals and compiled regex and initialize them
         # only when the first highlight() is called.
         self._options: Optional[Dict[str, dict]] = None        
+        self._positionals: Optional[Set[str]] = None
         self._compiled = None
 
     # ----- public pattern API -----
@@ -32,6 +33,10 @@ class NeonHighlighter(RegexHighlighter):
 
     # ----- RegexHighlighter hook -----
     def highlight(self, text: Text) -> None:
+        # Ensure initialization is complete before proceeding
+        if not self._initialization_complete(parser=self.parser):
+            return
+            
         # Ensure regex is compiled lazily (after parser is fully built)
         if self._compiled is None:
             self._build_regex()
@@ -43,6 +48,10 @@ class NeonHighlighter(RegexHighlighter):
         # Ensure options are collected lazily (after parser is fully built)
         if self._options is None or len(self._options) == 0:
             self._collect_options(self.parser)
+            
+        # Ensure positionals are collected lazily
+        if self._positionals is None:
+            self._collect_positionals(self.parser)
 
         backtick_replacements = False
 
@@ -108,7 +117,17 @@ class NeonHighlighter(RegexHighlighter):
                         mv_a, mv_b = match.span("metavar")
                         text.stylize(self.base_style + "metavar", mv_a, mv_b)
 
-        # 3) If preserve is disabled, remove the backticks
+        # 3) Highlight positional arguments (case-sensitive, word boundaries)
+        if self._positionals:
+            for positional in self._positionals:
+                # Case-sensitive word boundary matching
+                pattern = rf'\b{re.escape(positional)}\b'
+                try:
+                    text.highlight_regex(pattern, self.base_style + "args")
+                except re.error:
+                    pass
+
+        # 4) If preserve is disabled, remove the backticks
         if not self.config.preserve_backticks and backtick_replacements:
             new_text = self._remove_backticks_preserve_style(text)
             # Copy the new content back to the original text object
@@ -178,6 +197,10 @@ class NeonHighlighter(RegexHighlighter):
         self._compiled = re.compile("|".join(parts))
 
     def _collect_options(self, parser: argparse.ArgumentParser) -> None:
+        """Collect all option strings from parser and subparsers."""
+        if not self._initialization_complete(parser):
+            return
+            
         self._options = {}
         
         def actions_from(p: argparse.ArgumentParser):
@@ -206,16 +229,36 @@ class NeonHighlighter(RegexHighlighter):
                     for sub_name, sub in act.choices.items():
                         yield from actions_from(sub)
 
-        if not self._initialization_complete(parser):
-            return
-
         for action in actions_from(parser):
             if not getattr(action, "option_strings", None):
                 continue
             for opt in action.option_strings:
-                self._options[opt] = {"action": action}    
+                self._options[opt] = {"action": action}
+
+    def _collect_positionals(self, parser: argparse.ArgumentParser) -> None:
+        """Collect all positional argument names from parser and subparsers."""
+        if not self._initialization_complete(parser):
+            return
+            
+        self._positionals = set()
+        
+        def collect_from_parser(p: argparse.ArgumentParser):
+            for action in p._actions:
+                # Positional arguments have no option_strings
+                if (not getattr(action, "option_strings", None) and 
+                    action.dest != 'help' and 
+                    not isinstance(action, argparse._SubParsersAction)):
+                    self._positionals.add(action.dest)
+                
+                # Recursively collect from subparsers
+                if isinstance(action, argparse._SubParsersAction):
+                    for sub_name, sub_parser in action.choices.items():
+                        collect_from_parser(sub_parser)
+        
+        collect_from_parser(parser)
 
     def _initialization_complete(self, parser: argparse.ArgumentParser) -> bool:
+        """Check if parser is fully initialized."""
         # Check if parser is fully initialized
         total_actions = sum(len(group._group_actions) for group in parser._action_groups)
         if total_actions == 0:
