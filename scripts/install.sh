@@ -83,22 +83,6 @@ unzip -q neon.zip
 mv neon-main/neon "$INSTALL_DIR/"
 rm -rf neon-main neon.zip
 
-# Add rich to requirements.txt
-print_status "📋 Updating requirements.txt..."
-if [ -f "requirements.txt" ]; then
-    # Check if rich is already in requirements.txt
-    if ! grep -q "^rich" requirements.txt; then
-        echo "rich" >> requirements.txt
-        print_status "Added 'rich' to existing requirements.txt"
-    else
-        print_status "'rich' already exists in requirements.txt"
-    fi
-else
-    # Create requirements.txt with rich
-    echo "rich" > requirements.txt
-    print_status "Created requirements.txt with 'rich' dependency"
-fi
-
 # Dependencies will be installed manually by user
 # Check if the module structure exists
 print_status "🔍 Verifying download..."
@@ -107,6 +91,71 @@ if [ -f "$INSTALL_DIR/neon/__init__.py" ]; then
 else
     print_error "Download verification failed. Please check the installation manually."
     exit 1
+fi
+
+# Smart requirements.txt handling
+print_status "📋 Managing dependencies..."
+
+if [ -f "requirements.txt" ]; then
+    print_warning "requirements.txt already exists"
+    
+    # Check if neon includes requirements.txt
+    if [ -f "$INSTALL_DIR/neon/requirements.txt" ]; then
+        print_status "Neon requires these dependencies:"
+        cat "$INSTALL_DIR/neon/requirements.txt"
+        echo
+        
+        # Process each dependency
+        while IFS= read -r dep; do
+            # Extract package name (before ==, >=, etc.)
+            pkg_name=$(echo "$dep" | sed 's/[>=<!=].*//')
+            
+            if grep -q "^${pkg_name}[>=<!=]" requirements.txt 2>/dev/null; then
+                # Package exists - check for version conflicts
+                existing_line=$(grep "^${pkg_name}[>=<!=]" requirements.txt)
+                if [ "$existing_line" != "$dep" ]; then
+                    # Ask user about version conflict
+                    print_warning "Version conflict detected:"
+                    print_status "  Existing: $existing_line"
+                    print_status "  Neon needs: $dep"
+                    read -p "Replace with neon's version? (y/N): " -n 1 -r
+                    echo
+                    if [[ $REPLY =~ ^[Yy]$ ]]; then
+                        # Create backup and replace the line
+                        cp requirements.txt requirements.txt.bak
+                        sed "s/^${pkg_name}[>=<!=].*/$dep/" requirements.txt.bak > requirements.txt
+                        print_status "Updated '$pkg_name' to neon's version"
+                    else
+                        print_warning "Keeping existing version - neon may not work correctly"
+                    fi
+                else
+                    print_success "'$pkg_name' already at correct version"
+                fi
+            else
+                # Package missing - auto-add it
+                echo "$dep" >> requirements.txt
+                print_status "Added '$dep' to requirements.txt"
+            fi
+        done < "$INSTALL_DIR/neon/requirements.txt"
+    else
+        # Fallback to just rich if no requirements.txt in neon package
+        if ! grep -q "^rich" requirements.txt; then
+            echo "rich" >> requirements.txt
+            print_status "Added 'rich' to existing requirements.txt"
+        else
+            print_status "'rich' already exists in requirements.txt"
+        fi
+    fi
+else
+    # No requirements.txt exists - create one
+    if [ -f "$INSTALL_DIR/neon/requirements.txt" ]; then
+        cp "$INSTALL_DIR/neon/requirements.txt" requirements.txt
+        print_status "Created requirements.txt with neon dependencies"
+    else
+        # Fallback to just rich
+        echo "rich" > requirements.txt
+        print_status "Created requirements.txt with 'rich' dependency"
+    fi
 fi
 
 # Provide usage instructions

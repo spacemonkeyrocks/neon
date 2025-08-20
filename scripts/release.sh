@@ -64,7 +64,7 @@ if gh release view "$VERSION" &>/dev/null; then
     echo "✅ Release $VERSION already exists - skipping creation"
     RELEASE_EXISTS=true
 else
-    echo "📝 Release $VERSION doesn't exist - will create"
+    echo "🔍 Release $VERSION doesn't exist - will create"
     RELEASE_EXISTS=false
 fi
 
@@ -80,7 +80,7 @@ fi
 # Update version file if needed
 CURRENT_VERSION=$(cat neon/__version__.py | grep -o '"[^"]*"' | sed 's/"//g')
 if [ "$CURRENT_VERSION" != "$VERSION_NUMBER" ]; then
-    echo "📝 Updating version from $CURRENT_VERSION to $VERSION_NUMBER..."
+    echo "🔢 Updating version from $CURRENT_VERSION to $VERSION_NUMBER..."
     echo "__version__ = \"$VERSION_NUMBER\"" > neon/__version__.py
     
     # Commit version change
@@ -109,19 +109,36 @@ fi
 
 # Create GitHub release if it doesn't exist
 if [ "$RELEASE_EXISTS" = false ]; then
-    # Create zip
+    # Create zip with dependencies
     echo "📦 Creating distribution zip..."
     if [ ! -d "neon" ]; then
         echo "❌ Error: neon directory not found!"
         exit 1
     fi
     
+    # Copy requirements.txt into neon directory
+    if [ -f "requirements.txt" ]; then
+        echo "📋 Including requirements.txt in release..."
+        cp requirements.txt neon/
+    else
+        echo "⚠️  Warning: requirements.txt not found - release will not include dependencies"
+    fi
+    
     cd neon
     if ! zip -r ../neon.zip . -x "__pycache__/*" "*.pyc" "*.pyo" ; then
         echo "❌ Error: Failed to create zip file!"
+        # Clean up requirements.txt if we copied it
+        if [ -f "requirements.txt" ]; then
+            rm requirements.txt
+        fi
         exit 1
     fi
     cd ..
+    
+    # Clean up requirements.txt from neon directory
+    if [ -f "neon/requirements.txt" ]; then
+        rm neon/requirements.txt
+    fi
     
     if [ ! -f "neon.zip" ]; then
         echo "❌ Error: neon.zip was not created!"
