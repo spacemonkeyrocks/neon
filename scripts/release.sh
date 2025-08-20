@@ -12,6 +12,17 @@ VERSION_NUMBER=${VERSION#v}
 
 echo "🚀 Processing release $VERSION..."
 
+# Check if required tools are installed
+if ! command -v gh &> /dev/null; then
+    echo "❌ GitHub CLI (gh) is required but not installed. Please install it first."
+    exit 1
+fi
+
+if ! command -v zip &> /dev/null; then
+    echo "❌ zip is required but not installed. Please install it first."
+    exit 1
+fi
+
 # Check if we're on main branch
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ]; then
