@@ -9,10 +9,10 @@ from typing import Dict, Union, Optional, List
 from rich.theme import Theme
 from rich.style import Style
 
-from .exceptions import ThemeNotFoundError, NeonError
+from .exceptions import NeonThemeNotFoundError, NeonError
 
 
-class ThemeManager:
+class NeonThemeManager:
     """Manages themes for Rich-based ArgumentParser."""
     
     # Default fallback theme (in case default.ini is missing)
@@ -55,7 +55,7 @@ class ThemeManager:
         preset_file = presets_dir / f"{preset_name}.ini"
         
         if not preset_file.exists():
-            raise ThemeNotFoundError(
+            raise NeonThemeNotFoundError(
                 f"Preset theme '{preset_name}' not found. "
                 f"Available presets: {cls.list_presets()}"
             )
@@ -98,7 +98,7 @@ class ThemeManager:
                 preset_theme = cls._load_preset_from_file(theme_str)
                 if preset_theme:
                     return Theme(preset_theme)
-            except ThemeNotFoundError:
+            except NeonThemeNotFoundError:
                 # Not a preset, continue to check if it's a file path
                 pass
             except NeonError:
@@ -120,7 +120,7 @@ class ThemeManager:
             
             # Neither preset nor valid file path
             available_presets = cls.list_presets()
-            raise ThemeNotFoundError(
+            raise NeonThemeNotFoundError(
                 f"Theme '{theme}' not found. "
                 f"Available presets: {available_presets}. "
                 f"Or provide a valid .ini file path."
@@ -129,7 +129,7 @@ class ThemeManager:
         # Invalid theme type - fallback to default with warning
         try:
             return cls.load_theme("default")
-        except ThemeNotFoundError:
+        except NeonThemeNotFoundError:
             # Even default preset is missing, use hardcoded fallback
             return Theme(cls.DEFAULT_THEME)
     

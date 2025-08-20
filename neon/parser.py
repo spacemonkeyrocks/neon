@@ -1,17 +1,18 @@
 """
-Main RichArgumentParser class for neon.
+Main NeonArgumentParser class for neon.
 """
 
 import argparse
+
 from typing import Union, Optional, Dict, List, Any
 from rich.theme import Theme
 
-from .config import Config
-from .theme import ThemeManager
-from .formatter import RichFormatter
+from .config import NeonConfig
+from .theme import NeonThemeManager
+from .formatter import NeonFormatter
 
 
-class RichHelpFormatter(argparse.HelpFormatter):
+class NeonHelpFormatter(argparse.HelpFormatter):
     """Argparse-compatible formatter that uses Rich for rendering."""
     
     def __init__(self, prog, indent_increment=2, max_help_position=24, width=None):
@@ -19,7 +20,7 @@ class RichHelpFormatter(argparse.HelpFormatter):
         self._rich_formatter = None
         self._parser = None
     
-    def _set_rich_formatter(self, rich_formatter: RichFormatter, parser):
+    def _set_rich_formatter(self, rich_formatter: NeonFormatter, parser):
         """Set the Rich formatter instance."""
         self._rich_formatter = rich_formatter
         self._parser = parser
@@ -31,9 +32,9 @@ class RichHelpFormatter(argparse.HelpFormatter):
         return super().format_help()
 
 
-class RichArgumentParser(argparse.ArgumentParser):
+class NeonArgumentParser(argparse.ArgumentParser):
     """
-    ArgumentParser with Rich-based formatting and simplified configuration.
+    ArgumentParser with Neon-based formatting and simplified configuration.
     
     Provides beautiful colored output with table-based layout, dynamic highlighting,
     and custom sections while maintaining full argparse compatibility.
@@ -55,7 +56,7 @@ class RichArgumentParser(argparse.ArgumentParser):
                  exit_on_error: bool = True,
                  # Library specific parameters
                  theme: Union[str, Dict, Theme] = "default",
-                 config: Optional[Config] = None,
+                 config: Optional[NeonConfig] = None,
                  header: Optional[str] = None,
                  examples: Optional[Union[str, List[str]]] = None,
                  notes: Optional[Union[str, List[str]]] = None,
@@ -74,7 +75,7 @@ class RichArgumentParser(argparse.ArgumentParser):
         
         # Start with provided config or default
         if config is None:
-            config = Config()
+            config = NeonConfig()
         
         # Merge any direct parameters into config
         config_updates = {}
@@ -115,14 +116,14 @@ class RichArgumentParser(argparse.ArgumentParser):
         
         # Store configuration
         self._config = config
-        self._theme = ThemeManager.load_theme(config.theme)
+        self._theme = NeonThemeManager.load_theme(config.theme)
         self._custom_patterns = config.custom_patterns or {}
         self._rich_formatter = None
         self._rich_formatter = None
         
         # Use custom formatter
         if formatter_class is None:
-            formatter_class = RichHelpFormatter
+            formatter_class = NeonHelpFormatter
         
         # Initialize parent ArgumentParser
         super().__init__(
@@ -143,7 +144,7 @@ class RichArgumentParser(argparse.ArgumentParser):
         )
         
         # Initialize Rich formatter
-        self._rich_formatter = RichFormatter(self, self._config, self._theme)
+        self._rich_formatter = NeonFormatter(self, self._config, self._theme)
         
         # Set up patterns
         if self._custom_patterns:
@@ -165,47 +166,43 @@ class RichArgumentParser(argparse.ArgumentParser):
         return formatter
     
     # Configuration methods (chainable)
-    def with_theme(self, theme: Union[str, Dict, Theme]) -> 'RichArgumentParser':
+    def with_theme(self, theme: Union[str, Dict, Theme]) -> 'NeonArgumentParser':
         """Set theme. Returns self for method chaining."""
-        self._theme = ThemeManager.load_theme(theme)
-        self._rich_formatter = RichFormatter(self, self._config, self._theme)
+        self._theme = NeonThemeManager.load_theme(theme)
+        self._rich_formatter = NeonFormatter(self, self._config, self._theme)
         if self._custom_patterns:
             self._rich_formatter.set_patterns(self._custom_patterns)
         return self
     
-    def with_config(self, **kwargs) -> 'RichArgumentParser':
+    def with_config(self, **kwargs) -> 'NeonArgumentParser':
         """Update configuration. Returns self for method chaining."""
         self._config = self._config.merge(**kwargs)
-        self._rich_formatter = RichFormatter(self, self._config, self._theme)
+        self._rich_formatter = NeonFormatter(self, self._config, self._theme)
         if self._custom_patterns:
             self._rich_formatter.set_patterns(self._custom_patterns)
         return self
     
-    def configure(self, **kwargs) -> 'RichArgumentParser':
-        """Alias for with_config for backward compatibility."""
-        return self.with_config(**kwargs)
-    
     # Content methods (chainable)
-    def add_header(self, header: str) -> 'RichArgumentParser':
+    def add_header(self, header: str) -> 'NeonArgumentParser':
         """Add header text. Returns self for method chaining."""
         self._rich_formatter.set_header(header)
         return self
     
-    def add_examples(self, examples: Union[str, List[str]]) -> 'RichArgumentParser':
+    def add_examples(self, examples: Union[str, List[str]]) -> 'NeonArgumentParser':
         """Add examples section. Returns self for method chaining."""
         if isinstance(examples, list):
             examples = '\n'.join(examples)
         self._rich_formatter.add_custom_section("Examples", examples)
         return self
     
-    def add_notes(self, notes: Union[str, List[str]]) -> 'RichArgumentParser':
+    def add_notes(self, notes: Union[str, List[str]]) -> 'NeonArgumentParser':
         """Add notes section. Returns self for method chaining."""
         if isinstance(notes, list):
             notes = '\n'.join(notes)
         self._rich_formatter.add_custom_section("Notes", notes)
         return self
     
-    def add_custom_section(self, title: str, content: Union[str, List[str]]) -> 'RichArgumentParser':
+    def add_custom_section(self, title: str, content: Union[str, List[str]]) -> 'NeonArgumentParser':
         """Add custom section. Returns self for method chaining."""
         if isinstance(content, list):
             content = '\n'.join(content)
@@ -213,28 +210,20 @@ class RichArgumentParser(argparse.ArgumentParser):
         return self
     
     # Highlighting methods (chainable)
-    def add_pattern(self, pattern: str, style: str) -> 'RichArgumentParser':
+    def add_pattern(self, pattern: str, style: str) -> 'NeonArgumentParser':
         """Add custom highlighting pattern. Returns self for method chaining."""
         self._custom_patterns[pattern] = style
         self._rich_formatter.add_pattern(pattern, style)
         return self
     
-    def set_patterns(self, patterns: Dict[str, str]) -> 'RichArgumentParser':
+    def set_patterns(self, patterns: Dict[str, str]) -> 'NeonArgumentParser':
         """Set custom highlighting patterns. Returns self for method chaining."""
         self._custom_patterns = patterns.copy()
         self._rich_formatter.set_patterns(patterns)
         return self
     
-    def add_custom_pattern(self, pattern: str, style: str) -> 'RichArgumentParser':
-        """Alias for add_pattern for backward compatibility."""
-        return self.add_pattern(pattern, style)
-    
-    def set_custom_patterns(self, patterns: Dict[str, str]) -> 'RichArgumentParser':
-        """Alias for set_patterns for backward compatibility."""
-        return self.set_patterns(patterns)
-    
     # Helper methods (chainable)
-    def add_help_argument(self) -> 'RichArgumentParser':
+    def add_help_argument(self) -> 'NeonArgumentParser':
         """Add help argument if not already present. Returns self for method chaining."""
         # Check if help argument already exists
         for action in self._actions:
@@ -247,7 +236,7 @@ class RichArgumentParser(argparse.ArgumentParser):
         return self
     
     # Information methods
-    def get_config(self) -> Config:
+    def get_config(self) -> NeonConfig:
         """Get current configuration."""
         return self._config
     
@@ -257,8 +246,4 @@ class RichArgumentParser(argparse.ArgumentParser):
     
     def list_presets(self) -> List[str]:
         """List available theme presets."""
-        return ThemeManager.list_presets()
-
-
-# Backward compatibility alias
-CustomColoredArgumentParser = RichArgumentParser
+        return NeonThemeManager.list_presets()

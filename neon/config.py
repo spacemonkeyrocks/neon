@@ -8,36 +8,36 @@ from rich.theme import Theme
 
 
 @dataclass
-class Config:
-    """Configuration for RichArgumentParser formatting."""
+class NeonConfig:
+    """Configuration for NeonArgumentParser formatting."""
     
     # Layout and formatting
-    indent: int = 2                          # Line indentation
-    section_gap: int = 1                     # Blank lines between sections
-    max_width: Optional[int] = None          # Terminal width override
-    no_wrap_usage: bool = True               # Keep usage line unwrapped
-    arg_column_width: Optional[int] = None   # Fixed width for argument/command column
+    indent: int = 2                                    # Line indentation
+    section_gap: int = 1                               # Blank lines between sections
+    max_width: Optional[int] = None                    # Terminal width override
+    no_wrap_usage: bool = True                         # Keep usage line unwrapped
+    arg_column_width: Optional[int] = None             # Fixed width for argument/command column
     
     # Text processing
-    dyn_format: bool = True                  # Dynamic text highlighting
-    preserve_backticks: bool = False         # Keep backticks when highlighting content
+    dyn_format: bool = True                            # Dynamic text highlighting
+    preserve_backticks: bool = False                   # Keep backticks when highlighting content
     
     # Bullet styling
-    bullet_char: str = "•"                   # Standardize all bullets to this character (None to keep original)
+    bullet_char: str = "•"                             # Standardize all bullets to this character (None to keep original)
     bullet_list: List[str] = \
         field(default_factory=lambda: ['•', '◦', '▪', '▫', '-', '*'])  # List of recognized bullet characters
    
     # Theme and styling
-    theme: Union[str, Dict, Theme] = "default"  # Theme name, dict, or Rich Theme object
-    custom_patterns: Optional[Dict[str, str]] = None  # Custom regex patterns for highlighting
+    theme: Union[str, Dict, Theme] = "default"         # Theme name, dict, or Rich Theme object
+    custom_patterns: Optional[Dict[str, str]] = None   # Custom regex patterns for highlighting
     
     # Content sections
-    header: Optional[str] = None             # Header text
-    examples: Optional[Union[str, List[str]]] = None  # Examples section content
-    notes: Optional[Union[str, List[str]]] = None     # Notes section content
+    header: Optional[str] = None                       # Header text
+    examples: Optional[Union[str, List[str]]] = None   # Examples section content
+    notes: Optional[Union[str, List[str]]] = None      # Notes section content
     
     # Debug
-    debug: bool = False                      # Debug output
+    debug: bool = False                                # Debug output
 
     def __post_init__(self):
         """Validate and process fields after initialization."""
@@ -62,14 +62,14 @@ class Config:
             self.custom_patterns = {}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Config':
-        """Create Config from dictionary, ignoring unknown keys."""
+    def from_dict(cls, data: Dict[str, Any]) -> 'NeonConfig':
+        """Create NeonConfig from dictionary, ignoring unknown keys."""
         valid_fields = {field.name for field in cls.__dataclass_fields__.values()}
         filtered_data = {k: v for k, v in data.items() if k in valid_fields}
         return cls(**filtered_data)
     
-    def merge(self, **kwargs) -> 'Config':
-        """Create new Config with updated values."""
+    def merge(self, **kwargs) -> 'NeonConfig':
+        """Create new NeonConfig with updated values."""
         current_dict = self.__dict__.copy()
         current_dict.update(kwargs)
-        return Config.from_dict(current_dict)
+        return NeonConfig.from_dict(current_dict)

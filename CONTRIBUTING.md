@@ -17,13 +17,13 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ```bash
 # Clone and setup
-git clone https://github.com/spacemonkeyrocks/styled-argparse
-cd styled-argparse
+git clone https://github.com/spacemonkeyrocks/neon
+cd neon
 
 # Create environment and install deps
 uv venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-uv pip install rich
+uv pip install -r requirements.txt
 
 # Test
 python examples/examples.py
@@ -36,17 +36,17 @@ script -c "python examples/examples.py" output.txt
 
 ### Module Structure
 
-- **Main API**: `styled_argparse/parser.py`
-- **Core formatting**: `styled_argparse/formatter.py`  
-- **Colors/styling**: `styled_argparse/theme.py`
-- **Text processing**: `styled_argparse/highlighting.py`
-- **Configuration**: `styled_argparse/config.py`
+- **Main API**: `neon/parser.py`
+- **Core formatting**: `neon/formatter.py`  
+- **Colors/styling**: `neon/theme.py`
+- **Text processing**: `neon/highlighting.py`
+- **Configuration**: `neon/config.py`
 
 ### Testing
 
 1. **Edit** the appropriate module
 2. **Test** with `examples/examples.py`
-3. **Debug** with `config=Config(debug=True)` if needed
+3. **Debug** with `config=NeonConfig(debug=True)` if needed
 
 ```bash
 # Run all examples

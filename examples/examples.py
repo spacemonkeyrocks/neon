@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test examples for RichArgumentParser demonstrating complete formatting control.
+Test examples for NeonArgumentParser demonstrating complete formatting control.
 Updated for neon v3.0 with Rich-based implementation.
 """
 
@@ -10,18 +10,18 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from neon import RichArgumentParser, Config
+from neon import NeonArgumentParser, NeonConfig
 
 def test_simple_usage():
     """Test simple usage example to verify basic functionality."""
     print(f"\n\n{pad_center('Simple Example Test', 100, '=')}")
     
-    parser = RichArgumentParser(
+    parser = NeonArgumentParser(
         prog="simple-tool",
-        description="A simple example to test the Rich formatter.",
+        description="A simple example to test the Neon formatter.",
         add_help=False,
         # Library specific parameters can be set directly or in config, which is the preferred way
-        config=Config(
+        config=NeonConfig(
             theme="default",
             max_width=60,
             dyn_format=True
@@ -58,7 +58,7 @@ substoforced baz
     notes = """  - This substoforced tool is awesome.
   • Additional note here."""
     
-    parser = RichArgumentParser(
+    parser = NeonArgumentParser(
         prog="substoforced",
         description="A tool for Subtitle processing with complete formatting control.",
         epilog="To get help for a specific subcommand: substoforced <subcommand> --help",
@@ -119,7 +119,7 @@ def test_complex_example():
     header = f"bh v{version} - bhosted.nl DNS Tool"
     
     # Create main parser with custom patterns
-    main_parser = RichArgumentParser(
+    main_parser = NeonArgumentParser(
         prog="bh",
         header=header,
         description="Manage DNS records of bhosted.nl using the web services API.",
@@ -184,7 +184,7 @@ def test_subcommand_example():
     header = f"bh v{version} - bhosted.nl DNS Tool"
     
     # Create custom config
-    config = Config(
+    config = NeonConfig(
         max_width=100,
         indent=2,
         section_gap=1,
@@ -195,7 +195,7 @@ def test_subcommand_example():
     )
     
     # Create subcommand parser
-    add_parser = RichArgumentParser(
+    add_parser = NeonArgumentParser(
         prog="bh add",
         description="Add a new DNS record to bhosted.nl.",
         epilog="For more details, see the official API documentation.",
@@ -254,7 +254,7 @@ def test_extra_example():
     print(f"\n\n{pad_center('Method Chaining Example', 100, '=')}")
 
     # Create parser with method chaining
-    parser = RichArgumentParser(
+    parser = NeonArgumentParser(
             prog="myapp",
             dyn_format=True
         ) \
@@ -270,7 +270,7 @@ def test_extra_example():
         .add_pattern(r'\bERROR\b', 'groups') \
         .add_pattern(r'\bWARNING\b', 'default')
     
-    parser.description = "A sample application to demonstrate Rich ArgumentParser"
+    parser.description = "A sample application to demonstrate Neon ArgumentParser"
     
     # Add arguments
     parser.add_argument('input_file',  metavar='FILE', help='Input file to process')
@@ -294,7 +294,7 @@ Enable verbose mode:
         "→ ERROR and WARNING messages will be highlighted.",
         "• Primary bullet point",
         "  ○ Secondary bullet point", 
-        "    ■ Tertiary bullet point",
+        "    ▪ Tertiary bullet point",
         "→ Arrow bullet point",
         "★ Star bullet point"
     ]).add_help_argument()
@@ -315,7 +315,7 @@ def test_theme_showcase():
     for theme_name in themes:
         print(f"\n{pad_center(theme_name.upper() + ' THEME', 100, '-')}\n")
         
-        parser = RichArgumentParser(
+        parser = NeonArgumentParser(
             prog="demo",
             description=f"Demonstration of {theme_name} theme",
             theme=theme_name,

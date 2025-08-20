@@ -13,8 +13,8 @@ from rich.text import Text
 from rich.theme import Theme
 from rich.markup import escape
 
-from .config import Config
-from .highlighting import SmartHighlighter
+from .config import NeonConfig
+from .highlighting import NeonHighlighter
 
 
 # Regex to strip rich styling tags
@@ -24,14 +24,14 @@ pattern = re.compile(r'\[(\/?)[^\]]+\]')
 def strip_rich_tags(text):
     return pattern.sub('', text)
 
-class RichFormatter:
-    """Rich-based help formatter with table layout."""
+class NeonFormatter:
+    """Neon-based help formatter with table layout."""
     
-    def __init__(self, parser, config: Config, theme: Theme):
+    def __init__(self, parser, config: NeonConfig, theme: Theme):
         self.parser = parser
         self.config = config
         self.theme = theme
-        self.highlighter = SmartHighlighter(parser, config)
+        self.highlighter = NeonHighlighter(parser, config)
         
         # Create console instances
         self.console = self._create_console()

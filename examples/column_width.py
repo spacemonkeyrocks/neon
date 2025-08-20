@@ -8,13 +8,13 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from neon import RichArgumentParser, Config
+from neon import NeonArgumentParser, NeonConfig
 
 def test_auto_width():
     """Test automatic column width calculation."""
     print("=== Testing Automatic Column Width ===")
     
-    parser = RichArgumentParser(
+    parser = NeonArgumentParser(
         prog="mytool",
         description="A CLI tool demonstrating consistent column width.",
         theme="blue",
@@ -53,8 +53,8 @@ def test_fixed_width():
     """Test fixed column width."""
     print("\n=== Testing Fixed Column Width (30 chars) ===")
     
-    config = Config(arg_column_width=30)
-    parser = RichArgumentParser(
+    config = NeonConfig(arg_column_width=30)
+    parser = NeonArgumentParser(
         prog="mytool",
         description="A CLI tool with fixed column width.",
         config=config,

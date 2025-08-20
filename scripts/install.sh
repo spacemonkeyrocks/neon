@@ -118,13 +118,13 @@ echo
 echo "  # Create environment and install deps"
 echo "  uv venv"
 echo "  source .venv/bin/activate  # or .venv\\Scripts\\activate on Windows"
-echo "  uv pip install rich"
+echo "  uv pip install -r requirements.txt"
 echo
 echo "  # Import in your Python code:"
-echo "  from lib.neon import RichArgumentParser"
+echo "  from lib.neon import NeonArgumentParser"
 echo
 echo "  # Create your parser:"
-echo "  parser = RichArgumentParser(description='🚀 My awesome CLI')"
+echo "  parser = NeonArgumentParser(description='🚀 My awesome CLI')"
 echo "  parser.add_argument('--verbose', help='Enable verbose output')"
 echo "  parser.add_help_argument()"
 echo "  parser.print_help()"

@@ -5,7 +5,7 @@ from typing import Dict, Iterable, Optional
 from rich.highlighter import RegexHighlighter
 from rich.text import Text
 
-class SmartHighlighter(RegexHighlighter):
+class NeonHighlighter(RegexHighlighter):
     base_style = "argparse."
 
     # allow hyphenated long options and short options

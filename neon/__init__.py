@@ -6,11 +6,11 @@ colored output, table-based layouts, and dynamic text highlighting.
 """
 
 from .__version__ import __version__
-from .parser import RichArgumentParser, CustomColoredArgumentParser
-from .config import Config
-from .theme import ThemeManager
-from .formatter import RichFormatter
-from .highlighting import SmartHighlighter
+from .parser import NeonArgumentParser
+from .config import NeonConfig
+from .theme import NeonThemeManager
+from .formatter import NeonFormatter
+from .highlighting import NeonHighlighter
 
 __author__ = "Space Monkey Rocks"
 __email__ = "info@spacemonkey.rocks"
@@ -23,18 +23,17 @@ __description__ = "Rich-based ArgumentParser with beautiful formatting"
 # Main exports
 __all__ = [
     # Main classes
-    'RichArgumentParser',
-    'CustomColoredArgumentParser',  # Backward compatibility
+    'NeonArgumentParser',
     
     # Configuration
-    'Config',
+    'NeonConfig',
     
     # Theme management
-    'ThemeManager',
+    'NeonThemeManager',
     
     # Internal components (for advanced users)
-    'RichFormatter',
-    'SmartHighlighter',
+    'NeonFormatter',
+    'NeonHighlighter',
 ]
 
 # Version info
@@ -46,14 +45,14 @@ def get_version():
 
 def list_presets():
     """List available theme presets."""
-    return ThemeManager.list_presets()
+    return NeonThemeManager.list_presets()
 
 def get_config_info():
     """Get information about available configuration options."""
     from dataclasses import fields
     
     config_fields = {}
-    for field in fields(Config):
+    for field in fields(NeonConfig):
         config_fields[field.name] = {
             'type': field.type,
             'default': field.default,
@@ -79,27 +78,27 @@ def _get_field_description(field_name: str) -> str:
     return descriptions.get(field_name, 'No description available')
 
 # Quick usage example in module docstring
-RichArgumentParser.__doc__ = """
+NeonArgumentParser.__doc__ = """
 A Rich-based ArgumentParser with beautiful colored output and simplified configuration.
 
 Quick Examples:
     # Basic usage with preset theme
-    parser = RichArgumentParser(
+    parser = NeonArgumentParser(
         prog="mytool",
         description="A CLI tool",
         theme="blue"
     )
     
     # Custom configuration
-    config = Config(
-        indent="    ",        # 4 spaces instead of 2
+    config = NeonConfig(
+        indent=4,             # 4 spaces instead of 2
         bullet_char="→",      # Custom bullet
         section_gap=2         # More spacing
     )
-    parser = RichArgumentParser(config=config, theme="green")
+    parser = NeonArgumentParser(config=config, theme="green")
     
     # Method chaining
-    parser = RichArgumentParser(prog="tool") \\
+    parser = NeonArgumentParser(prog="tool") \\
         .with_theme("purple") \\
         .with_config(dyn_format=True) \\
         .add_examples("tool --input file.txt") \\
@@ -113,7 +112,7 @@ Available Themes:
     - purple: Royal-themed purple/magenta palette
     
 Configuration Options:
-    - indent: Line indentation (default: "  ")
+    - indent: Line indentation (default: 2)
     - section_gap: Blank lines between sections (default: 1)
     - dyn_format: Dynamic text highlighting (default: True)
     - bullet_char: Bullet character (default: "•")

@@ -50,10 +50,10 @@ python examples.py
 ## Quick Start
 
 ```python
-from neon import RichArgumentParser
+from neon import NeonArgumentParser
 
 # Simple usage with beautiful defaults
-parser = RichArgumentParser(
+parser = NeonArgumentParser(
     prog="mytool",
     description="A powerful CLI tool with beautiful help formatting",
     theme="blue"  # Built-in theme
@@ -81,10 +81,10 @@ parser.print_help()
 ### Simple Configuration
 
 ```python
-from neon import RichArgumentParser, Config
+from neon import NeonArgumentParser, NeonConfig
 
 # Custom configuration
-config = Config(
+config = NeonConfig(
     indent=4,                    # 4 spaces instead of default 2
     section_gap=2,               # More spacing between sections
     bullet_char="→",             # All bullets become arrows
@@ -93,7 +93,7 @@ config = Config(
     max_width=100                # Custom terminal width
 )
 
-parser = RichArgumentParser(
+parser = NeonArgumentParser(
     prog="mytool",
     theme="green",
     config=config
@@ -125,8 +125,8 @@ parser = RichArgumentParser(
 
 ```python
 # Use built-in themes
-parser = RichArgumentParser(theme="blue")
-parser = RichArgumentParser(theme="green")
+parser = NeonArgumentParser(theme="blue")
+parser = NeonArgumentParser(theme="green")
 ```
 
 ### Custom Themes
@@ -148,7 +148,7 @@ argparse.default=grey50 italic
 
 ```python
 # Load custom theme
-parser = RichArgumentParser(theme="my_theme.ini")
+parser = NeonArgumentParser(theme="my_theme.ini")
 ```
 
 ### Theme Elements
@@ -193,7 +193,7 @@ parser.add_notes("""
 Program names are automatically colored when mentioned:
 
 ```python
-parser = RichArgumentParser(prog="mytool")
+parser = NeonArgumentParser(prog="mytool")
 parser.add_examples('mytool input.txt --verbose')
 # Result: "mytool input.txt --verbose"
 #          ~~~~~~ (automatically colored)
@@ -204,7 +204,7 @@ parser.add_examples('mytool input.txt --verbose')
 Define custom regex patterns for highlighting:
 
 ```python
-parser = RichArgumentParser(
+parser = NeonArgumentParser(
     prog="tool",
     custom_patterns={
         r'-v{2,3}': 'args',          # Match -vv, -vvv
@@ -222,7 +222,7 @@ parser.add_pattern(r'\bWARNING\b', 'groups')
 ### Method Chaining
 
 ```python
-parser = RichArgumentParser(prog="deploy") \
+parser = NeonArgumentParser(prog="deploy") \
     .with_theme("purple") \
     .with_config(indent=4, bullet_char="→") \
     .add_header("Deploy Tool v2.0") \
@@ -267,7 +267,7 @@ backup_group.add_argument("--compress", action='store_true', help="Enable compre
 ### Subcommands
 
 ```python
-parser = RichArgumentParser(prog="tool")
+parser = NeonArgumentParser(prog="tool")
 
 # Add subcommands
 subparsers = parser.add_subparsers(dest="command", title="Commands")
@@ -286,15 +286,15 @@ status_parser.add_argument("--format", choices=['json', 'table'], help="Output f
 ### 1. Use Built-in Themes First
 ```python
 # Start with a preset
-parser = RichArgumentParser(theme="blue")
+parser = NeonArgumentParser(theme="blue")
 
 # Create custom theme only if needed
-parser = RichArgumentParser(theme="my_custom.ini")
+parser = NeonArgumentParser(theme="my_custom.ini")
 ```
 
 ### 2. Leverage Method Chaining
 ```python
-parser = RichArgumentParser(prog="tool") \
+parser = NeonArgumentParser(prog="tool") \
     .with_theme("green") \
     .add_examples("tool --input file.txt") \
     .add_notes("• Important notes here") \
@@ -327,7 +327,7 @@ output_group.add_argument("--quiet", help="Suppress output")
 neon/
 ├── neon/      # Main package
 │   ├── __init__.py       # Main exports
-│   ├── parser.py         # RichArgumentParser
+│   ├── parser.py         # NeonArgumentParser
 │   ├── formatter.py      # Rich-based formatter
 │   ├── theme.py          # Theme management
 │   ├── highlighting.py   # Smart text highlighting
@@ -342,7 +342,7 @@ neon/
 
 Import the main class:
 ```python
-from lib.neon import RichArgumentParser
+from lib.neon import NeonArgumentParser
 ```
 
 ## Requirements
