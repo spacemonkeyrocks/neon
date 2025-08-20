@@ -1,11 +1,11 @@
 #!/bin/bash
-# 🎨 styled-argparse installer script
-# Downloads and installs styled-argparse from GitHub
+# 🎨 neon installer script
+# Downloads and installs neon from GitHub
 
 set -e  # Exit on any error
 
-REPO_URL="https://github.com/spacemonkeyrocks/styled-argparse"
-DOWNLOAD_URL="https://github.com/spacemonkeyrocks/styled-argparse/archive/refs/heads/main.zip"
+REPO_URL="https://github.com/spacemonkeyrocks/neon"
+DOWNLOAD_URL="https://github.com/spacemonkeyrocks/neon/archive/refs/heads/main.zip"
 INSTALL_DIR="./lib"
 
 # Colors for output
@@ -33,7 +33,7 @@ print_error() {
 }
 
 print_header() {
-    echo -e "${PURPLE}🎨 styled-argparse installer${NC}"
+    echo -e "${PURPLE}🎨 neon installer${NC}"
     echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
@@ -50,30 +50,38 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 print_header
-print_status "Installing styled-argparse to current directory..."
+print_status "Installing neon to current directory..."
 
 # Create lib directory if it doesn't exist
 mkdir -p "$INSTALL_DIR"
 
-# Remove existing installation
-if [ -d "$INSTALL_DIR/styled_argparse" ]; then
-    print_status "🧹 Removing existing installation..."
-    rm -rf "$INSTALL_DIR/styled_argparse"
+# Check for existing installation
+if [ -d "$INSTALL_DIR/neon" ]; then
+    print_warning "neon is already installed in $INSTALL_DIR/neon"
+    read -p "Remove existing installation? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_status "🧹 Removing existing installation..."
+        rm -rf "$INSTALL_DIR/neon"
+    else
+        print_error "Installation cancelled"
+        exit 1
+    fi
 fi
 
 # Download the repository
 print_status "📥 Downloading from $REPO_URL..."
 if command -v curl &> /dev/null; then
-    curl -L "$DOWNLOAD_URL" -o styled-argparse.zip
+    curl -s -L "$DOWNLOAD_URL" -o neon.zip
 elif command -v wget &> /dev/null; then
-    wget "$DOWNLOAD_URL" -O styled-argparse.zip
+    wget -q "$DOWNLOAD_URL" -O neon.zip
 fi
 
 # Extract files
 print_status "📦 Extracting files..."
-unzip -q styled-argparse.zip
-mv styled-argparse-main/styled_argparse "$INSTALL_DIR/"
-rm -rf styled-argparse-main styled-argparse.zip
+unzip -q neon.zip
+mv neon-main/neon "$INSTALL_DIR/"
+rm -rf neon-main neon.zip
 
 # Add rich to requirements.txt
 print_status "📋 Updating requirements.txt..."
@@ -92,11 +100,10 @@ else
 fi
 
 # Dependencies will be installed manually by user
-
 # Check if the module structure exists
 print_status "🔍 Verifying download..."
-if [ -f "$INSTALL_DIR/styled_argparse/__init__.py" ]; then
-    print_success "styled-argparse downloaded successfully!"
+if [ -f "$INSTALL_DIR/neon/__init__.py" ]; then
+    print_success "neon downloaded successfully!"
 else
     print_error "Download verification failed. Please check the installation manually."
     exit 1
@@ -114,7 +121,7 @@ echo "  source .venv/bin/activate  # or .venv\\Scripts\\activate on Windows"
 echo "  uv pip install rich"
 echo
 echo "  # Import in your Python code:"
-echo "  from styled_argparse import RichArgumentParser"
+echo "  from lib.neon import RichArgumentParser"
 echo
 echo "  # Create your parser:"
 echo "  parser = RichArgumentParser(description='🚀 My awesome CLI')"
@@ -123,7 +130,9 @@ echo "  parser.add_help_argument()"
 echo "  parser.print_help()"
 echo
 echo -e "${BLUE}📖 Documentation:${NC}"
-echo "  Full documentation and examples: $REPO_URL/blob/main/README.md"
+echo "  Full documentation and examples: $REPO_URL"
 echo
-print_warning "Downloaded to: $INSTALL_DIR/styled_argparse"
+
+print_warning "Downloaded to: $INSTALL_DIR/neon"
+
 echo -e "${GREEN}🎨 Happy coding!${NC}"
