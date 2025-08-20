@@ -58,7 +58,7 @@ mkdir -p "$INSTALL_DIR"
 # Check for existing installation
 if [ -d "$INSTALL_DIR/neon" ]; then
     print_warning "neon is already installed in $INSTALL_DIR/neon"
-    read -p "Remove existing installation? (y/N): " -n 1 -r
+    read -p "Remove existing installation? (y/N): " -n 1 -r < /dev/tty
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_status "🧹 Removing existing installation..."
@@ -118,7 +118,7 @@ if [ -f "requirements.txt" ]; then
                     print_warning "Version conflict detected:"
                     print_status "  Existing: $existing_line"
                     print_status "  Neon needs: $dep"
-                    read -p "Replace with neon's version? (y/N): " -n 1 -r
+                    read -p "Replace with neon's version? (y/N): " -n 1 -r < /dev/tty
                     echo
                     if [[ $REPLY =~ ^[Yy]$ ]]; then
                         # Create backup and replace the line
