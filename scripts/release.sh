@@ -117,7 +117,7 @@ if [ "$RELEASE_EXISTS" = false ]; then
     fi
     
     cd neon
-    if ! zip -r ../neon.zip . ; then
+    if ! zip -r ../neon.zip . -x "__pycache__/*" "*.pyc" "*.pyo" ; then
         echo "❌ Error: Failed to create zip file!"
         exit 1
     fi
