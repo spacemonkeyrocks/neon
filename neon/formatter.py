@@ -502,7 +502,13 @@ class NeonFormatter:
         
         # Join with section gaps
         gap = '\n' * (self.config.section_gap + 1)
-        return gap.join(cleaned_sections)
+        result = gap.join(cleaned_sections)
+        
+        # Ensure result ends with newline
+        if result and not result.endswith('\n'):
+            result += '\n'
+
+        return result    
     
     def _calculate_max_arg_column_width(self) -> int:
         """
